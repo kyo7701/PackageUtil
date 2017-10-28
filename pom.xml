@@ -7,6 +7,31 @@
   <version>1.0-SNAPSHOT</version>
   <name>PackageUtil Maven Webapp</name>
   <url>http://maven.apache.org</url>
+  <parent>
+    <groupId>org.sonatype.oss</groupId>
+    <artifactId>oss-parent</artifactId>
+    <version>7</version>
+  </parent>
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <scm>
+    <tag>master</tag>
+    <url>git@github.com:kyo7701/PackageUtil.git</url>
+    <connection>scm:git:git@github.com:kyo7701/PackageUtil.git</connection>
+    <developerConnection>scm:git:git@github.com:kyo7701/PackageUtil.git</developerConnection>
+  </scm>
+  <developers>
+    <developer>
+      <name>mr_cris</name>
+      <email>mr_cris@outlook.com</email>
+      <organization>chanct</organization>
+    </developer>
+  </developers>
   <dependencies>
 
   </dependencies>
