@@ -23,7 +23,7 @@
 
 <del>2、将jar包丢到src目录下(后续考虑丢到maven中心仓)
 
-1、
+1、pom中添加对jar包的引用
 
 ```xml
 <dependency>
