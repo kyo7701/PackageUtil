@@ -17,13 +17,25 @@
 
 使用方法:
 
-1、引用本jar包，可以下载本工程自行打包,也可以下载我这里打包好的
+<del>1、引用本jar包，可以下载本工程自行打包,也可以下载我这里打包好的
 
-[jar包下载地址](http://7xwp5w.com1.z0.glb.clouddn.com/PackageUtil.jar)
+<del>[jar包下载地址](http://7xwp5w.com1.z0.glb.clouddn.com/PackageUtil.jar)
 
-2、将jar包丢到src目录下(后续考虑丢到maven中心仓)
+<del>2、将jar包丢到src目录下(后续考虑丢到maven中心仓)
 
-3、新建一个类并新建main方法,执行下列代码
+1、
+
+```xml
+<dependency>
+     <groupId>com.github.kyo7701</groupId>
+     <artifactId>PackageUtil</artifactId>
+     <version>1.0</version>
+</dependency>
+```
+
+
+
+2、新建一个类并新建main方法,执行下列代码
 
 ![](http://7xwp5w.com1.z0.glb.clouddn.com/%E9%9C%80%E8%A6%81%E6%89%A7%E8%A1%8C%E7%9A%84%E4%BB%A3%E7%A0%81.png)
 
