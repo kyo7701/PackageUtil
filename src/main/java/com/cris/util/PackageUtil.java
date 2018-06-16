@@ -2,6 +2,9 @@ package com.cris.util;
 
 import com.cris.constant.PackageType;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * Author:Mr.Cris
  * Date:2017-09-03 23:33
@@ -36,6 +39,12 @@ public class PackageUtil {
 
     private String importTemplate = "import [interface];";
 
+    private SimpleDateFormat sdf = new SimpleDateFormat();
+
+    private String codeSign = "";
+
+    private static final String lineBreak = "\n";
+
     public String getModuleName() {
         return moduleName;
     }
@@ -53,7 +62,7 @@ public class PackageUtil {
     }
 
     public PackageUtil() {
-
+        this.codeSign = this.generateCodeSign();
     }
 
     public PackageUtil(String moduleName) {
@@ -65,6 +74,7 @@ public class PackageUtil {
         util.setModuleName("module");
         util.setPackageName("com.cris.test");
         util.generate();
+//        System.out.println(util.generateCodeSign());
     }
 
     public void generate() {
@@ -122,7 +132,7 @@ public class PackageUtil {
         String classContent = controllerTemplate.replace(decoratePattern,decorateStr).replace(namePattern,className);
         String packageContent = packageTempLate.replace(packageNamePattern,packageName);
         String importContent = importTemplate.replace(interfacePattern,"org.springframework.stereotype.Controller");
-        String finalContent = packageContent +"\n\n" +importContent+ "\n\n" + classContent;
+        String finalContent = packageContent+ lineBreak + lineBreak + this.codeSign +"\n\n" +importContent+ "\n\n" + classContent;
 
         DocumentUtil.writeToFileByPackageNameAndFileName(packageName,fileName,finalContent);
     }
@@ -202,9 +212,10 @@ public class PackageUtil {
         DocumentUtil.createFileByPackageNameAndFileName(Package,interfaceFileName);
         //生成interface模板
         String packageContent = packageTempLate.replace(packageNamePattern,Package);
+
         String interfaceTemplate = "public interface [name] {\n\n}";
         String interfaceContent = interfaceTemplate.replace(namePattern,interfaceName);
-        return packageContent + "\n\n" + interfaceContent;
+        return packageContent + lineBreak + lineBreak+ this.codeSign + lineBreak + lineBreak + interfaceContent;
     }
 
     private String generateImplCodeTemplate(PackageType type) {
@@ -218,7 +229,7 @@ public class PackageUtil {
         implContent = implContent.replace(this.decoratePattern,decorateStr);
         String packageContent = packageTempLate.replace(packageNamePattern,implPackageName);
         String importContent = this.generateImportPattern(type);
-        return packageContent +"\n\n" + importContent + "\n\n" + implContent;
+        return packageContent +lineBreak + lineBreak+ this.codeSign + lineBreak + lineBreak + importContent + lineBreak + lineBreak + implContent;
     }
 
     private void generateInterfaceFile(PackageType type) {
@@ -295,6 +306,19 @@ public class PackageUtil {
             break;
         }
         return decoratePattern;
+    }
+
+    private String generateCodeSign() {
+        String time = DateUtil.dateToString(new Date(),DateUtil.FORMAT_FIVE);
+        Date date = new Date();
+        sdf.format(date);
+        String sign = "/**\n" +
+                " * Code generating Template by Mr.Cris\n" +
+                " * Date:" + time +"\n"+
+                " */";
+
+
+        return sign;
     }
 
 
