@@ -1,9 +1,11 @@
 package com.cris.util;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
+import com.cris.constant.PackageType;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
 
 /**
  * Author:Mr.Cris
@@ -60,6 +62,30 @@ public class DocumentUtil {
         return flag;
     }
 
+    public static String readFile(String fileName) throws IOException {
+        File file = new File(fileName);
+        if (!file.exists()) {
+            System.out.println(file.getPath());
+            System.out.println("文件不存在");
+            return null;
+        }
+        BufferedReader reader = new BufferedReader(new FileReader(file));
+        System.out.println("line:---");
+        String line = null;
+        while ((line = reader.readLine()) != null) {
+            System.out.println(line);
+        }
+        System.out.println("line:---");
+        return null;
+
+    }
+
+    public static String readFileByPackageType(String fileName,PackageType type) throws IOException {
+        String filePath = fileNameResolveByPackageType(fileName, type);
+        return readFile(filePath);
+    }
+
+
     public static void writeToFileByPackageNameAndFileName(String packageName,String fileName,String content) {
         String[] packagesName = packageName.split("\\.");
         String folderPath = classPath;
@@ -91,6 +117,104 @@ public class DocumentUtil {
         createFile(filePath);
     }
 
+    public static String fileFullNameResolve(String fileName) {
+        String[] packagesName = fileName.split("\\.");
+        String parentFolder = classPath;
+        Integer i = 0;
+        String fileSuffix = ".java";
+        for (String s : packagesName) {
+            if (i != packagesName.length -1) {
+                parentFolder += s + "\\";
+            }else {
+                parentFolder += s + fileSuffix;
+            }
+            i++;
+        }
+        System.out.println(parentFolder);
+        return parentFolder;
+    }
+
+    public static String fileNameResolveByPackageType(String fileFullName, PackageType type) {
+        String[] packagesName = fileFullName.split("\\.");
+        String parentFolder = classPath;
+        Integer i = 0;
+        String packageType = type.getValue();
+        String fileSuffix = ".java";
+        for (String s : packagesName) {
+            if (i != packagesName.length -1) {
+                parentFolder += s + "\\";
+            }else {
+                parentFolder += packageType + "\\";
+                parentFolder += s + fileSuffix;
+            }
+            i++;
+        }
+        System.out.println(parentFolder);
+        return parentFolder;
+
+    }
+
+    /**
+     * 将原有空行替换为将要创建的新方法
+     * @param
+     * @return
+     */
+    public static boolean writeNewMethod(String fileName,String content,PackageType type){
+        String filePath = fileNameResolveByPackageType(fileName,type);
+        //读取文件
+        //遇到类体
+        //遇到第一个空行
+        //将新方法写入
+        Stack stack = new Stack();
+        boolean isInClassBody = false;
+        boolean isEmptyLine = false;
+        boolean insertComplete = false;
+        File file = new File(filePath);
+        List<String> previousContent = new ArrayList<String>();
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(file));
+
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+                if (line.contains("{")) {
+                    stack.push("{");
+                }
+                if (line.contains("}")) {
+                    String s=  (String)stack.pop();
+                }
+                if (line.equals("")) {
+                    isEmptyLine = true;
+                }
+                System.out.println("stack中操作数数量" + stack.size());
+                //在类体内 并且不是在方法体内
+                if (isInClassBody && isEmptyLine &&stack.size() == 1 && !insertComplete) {
+                    //将方法内容写入到方法体中
+                    String methodLine = "\n"+ content + "\n";
+                    previousContent.add(methodLine);
+                    insertComplete = true;
+                }
+
+                previousContent.add(line);
+                if (line.contains("interface") || line.contains("class")) {
+                    System.out.println("contains class|interface");
+                    isInClassBody = true;
+                }
+
+            }
+            reader.close();
+            PrintWriter writer = new PrintWriter(new FileWriter(file));
+            for (String s : previousContent) {
+                s+= "\n";
+                writer.write(s);
+            }
+            writer.flush();
+            writer.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return true;
+    }
 
 
 }

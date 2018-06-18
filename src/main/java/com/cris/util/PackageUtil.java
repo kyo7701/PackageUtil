@@ -2,6 +2,7 @@ package com.cris.util;
 
 import com.cris.constant.PackageType;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -69,12 +70,15 @@ public class PackageUtil {
         this.moduleName = moduleName;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         PackageUtil util = new PackageUtil();
         util.setModuleName("module");
         util.setPackageName("com.cris.test");
         util.generate();
-//        System.out.println(util.generateCodeSign());
+        String fileName =util.generateInterfaceName(PackageType.DAO);
+        String fileFullName = util.getPackageName()+ "." + fileName;
+//        DocumentUtil.readFileByPackageType(fileFullName,PackageType.DAO);
+        DocumentUtil.writeNewMethod(fileFullName,"lalalalal",PackageType.DAO);
     }
 
     public void generate() {
@@ -319,6 +323,11 @@ public class PackageUtil {
 
 
         return sign;
+    }
+
+    public String generateMethodContent(PackageType type,boolean isInterface){
+
+        return null;
     }
 
 

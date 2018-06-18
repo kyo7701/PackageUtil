@@ -6,6 +6,33 @@ package com.cris.constant;
  */
 public enum PackageType {
 
-    DAO,SERVICE,CONTROLLER,ENTITY
+    DAO(0,"dao"),SERVICE(1,"service"),CONTROLLER(2,"controller"),ENTITY(3,"entity");
 
+    private Integer code;
+    private String value;
+
+    PackageType() {
+
+    }
+
+    PackageType(Integer code,String value){
+        this.code = code;
+        this.value = value;
+    }
+
+    public Integer getCode() {
+        return code;
+    }
+
+    public void setCode(Integer code) {
+        this.code = code;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
 }
