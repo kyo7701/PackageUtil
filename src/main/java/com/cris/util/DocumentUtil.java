@@ -156,8 +156,9 @@ public class DocumentUtil {
 
     /**
      * 将原有空行替换为将要创建的新方法
-     * @param
-     * @return
+     * @param content 方法内容
+     * @param fileName 文件名
+     * @param type 类类型
      */
     public static boolean writeNewMethod(String fileName,String content,PackageType type){
         String filePath = fileNameResolveByPackageType(fileName,type);

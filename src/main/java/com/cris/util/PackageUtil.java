@@ -1,5 +1,6 @@
 package com.cris.util;
 
+import com.cris.constant.MethodType;
 import com.cris.constant.PackageType;
 
 import java.io.IOException;
@@ -325,10 +326,20 @@ public class PackageUtil {
         return sign;
     }
 
-    public String generateMethodContent(PackageType type,boolean isInterface){
-
+    public String generateMethodContent(PackageType packageType, MethodType methodType, boolean isInterface){
+        //上下文
+        //方法名称 方法参数 返回类型 使用的
+        //
         return null;
     }
+    
+    
+    /**
+    * TODO
+    * Created by mr_cris
+    * 2018/6/18
+    * 添加依赖注入,创建方法体
+    */
 
 
 }
