@@ -144,7 +144,7 @@ public class DocumentUtil {
             if (i != packagesName.length -1) {
                 parentFolder += s + "\\";
             }else {
-                parentFolder += packageType + "\\";
+                parentFolder +=   "\\";
                 parentFolder += s + fileSuffix;
             }
             i++;
@@ -160,7 +160,7 @@ public class DocumentUtil {
      * @param fileName 文件名
      * @param type 类类型
      */
-    public static boolean writeNewMethod(String fileName,String content,PackageType type){
+    public static boolean writeNewMethod(String fileName,String content,List<String> importList,PackageType type){
         String filePath = fileNameResolveByPackageType(fileName,type);
         //读取文件
         //遇到类体
@@ -170,6 +170,7 @@ public class DocumentUtil {
         boolean isInClassBody = false;
         boolean isEmptyLine = false;
         boolean insertComplete = false;
+        boolean importComplete = false;
         File file = new File(filePath);
         List<String> previousContent = new ArrayList<String>();
         try {
@@ -187,6 +188,17 @@ public class DocumentUtil {
                 if (line.equals("")) {
                     isEmptyLine = true;
                 }
+
+                if (!isInClassBody && isEmptyLine && !importComplete) {//添加import信息
+                    if (importList !=null) {
+                        for (String importStr : importList) {
+                            String importPattern = "\n" + importStr;
+                            previousContent.add(importPattern);
+                        }
+                        importComplete = true;
+                    }
+                }
+
                 System.out.println("stack中操作数数量" + stack.size());
                 //在类体内 并且不是在方法体内
                 if (isInClassBody && isEmptyLine &&stack.size() == 1 && !insertComplete) {

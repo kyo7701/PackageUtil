@@ -6,6 +6,8 @@ import com.cris.constant.PackageType;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Author:Mr.Cris
@@ -45,6 +47,22 @@ public class PackageUtil {
 
     private String codeSign = "";
 
+    private boolean enableRestful = true;
+
+    private String entityName = "";
+
+    private MethodUtil methodUtil;
+
+    private Map<String,String> classNameMap = new HashMap();
+
+    public String getEntityName() {
+        return entityName;
+    }
+
+    public void setEntityName(String entityName) {
+        this.entityName = entityName;
+    }
+
     private static final String lineBreak = "\n";
 
     public String getModuleName() {
@@ -76,10 +94,11 @@ public class PackageUtil {
         util.setModuleName("module");
         util.setPackageName("com.cris.test");
         util.generate();
-        String fileName =util.generateInterfaceName(PackageType.DAO);
-        String fileFullName = util.getPackageName()+ "." + fileName;
-//        DocumentUtil.readFileByPackageType(fileFullName,PackageType.DAO);
-        DocumentUtil.writeNewMethod(fileFullName,"lalalalal",PackageType.DAO);
+        util.generateMethod(MethodType.METHOD_TYPE_QUERYLIST);
+        util.generateMethod(MethodType.METHOD_TYPE_QUERYONE);
+        util.generateMethod(MethodType.METHOD_TYPE_INSERT);
+        util.generateMethod(MethodType.METHOD_TYPE_UPDATE);
+        util.generateMethod(MethodType.METHOD_TYPE_DELETE);
     }
 
     public void generate() {
@@ -90,6 +109,7 @@ public class PackageUtil {
         if (this.packageName == null || this.packageName.equals("")) {
             throw new IllegalArgumentException("请填写包的名称");
         }
+        this.init();
         this.generateController();
         this.generateService();
         this.generateDao();
@@ -136,15 +156,30 @@ public class PackageUtil {
         String controllerTemplate = "[decoratePattern]\npublic class [name] {\n\n}";
         String classContent = controllerTemplate.replace(decoratePattern,decorateStr).replace(namePattern,className);
         String packageContent = packageTempLate.replace(packageNamePattern,packageName);
-        String importContent = importTemplate.replace(interfacePattern,"org.springframework.stereotype.Controller");
-        String finalContent = packageContent+ lineBreak + lineBreak + this.codeSign +"\n\n" +importContent+ "\n\n" + classContent;
-
+        String importContent = generateImportPattern(PackageType.CONTROLLER,false);
+        String finalContent = packageContent+ lineBreak + importContent +"\n" + this.codeSign+ "\n" + classContent;
         DocumentUtil.writeToFileByPackageNameAndFileName(packageName,fileName,finalContent);
     }
 
+
+
     private void generateEntity() {
+        //建包
         String packageType = this.generatePackageName(PackageType.ENTITY).toLowerCase();
-        DocumentUtil.createFolderByPackageName(this.packageName + "." + packageType);
+        String packageName = this.packageName + "." + packageType;
+        DocumentUtil.createFolderByPackageName(packageName);
+        //建类
+        String moduleUpper = this.moduleName.substring(0,1).toUpperCase() + this.moduleName.substring(1);
+        String fileName = moduleUpper + this.generatePackageName(PackageType.ENTITY) + suffix;
+        String className = moduleUpper + this.generatePackageName(PackageType.ENTITY);
+        DocumentUtil.createFileByPackageNameAndFileName(packageName,fileName);
+        //生成内容
+        String decorateStr = this.generateDecoratePattern(PackageType.ENTITY);
+        String entityTemplate = "[decoratePattern]\npublic class [name] {\n\n}";
+        String classContent = entityTemplate.replace(decoratePattern,decorateStr).replace(namePattern,className);
+        String packageContent = packageTempLate.replace(packageNamePattern,packageName);
+        String finalContent = packageContent+ lineBreak + lineBreak + this.codeSign +"\n\n" + classContent;
+        DocumentUtil.writeToFileByPackageNameAndFileName(packageName,fileName,finalContent);
     }
 
     private void createPackage(PackageType type) {
@@ -219,8 +254,9 @@ public class PackageUtil {
         String packageContent = packageTempLate.replace(packageNamePattern,Package);
 
         String interfaceTemplate = "public interface [name] {\n\n}";
+        String importPattern = generateImportPattern(type,true);
         String interfaceContent = interfaceTemplate.replace(namePattern,interfaceName);
-        return packageContent + lineBreak + lineBreak+ this.codeSign + lineBreak + lineBreak + interfaceContent;
+        return packageContent +lineBreak + lineBreak+ importPattern + lineBreak + lineBreak+ this.codeSign + lineBreak + lineBreak + interfaceContent;
     }
 
     private String generateImplCodeTemplate(PackageType type) {
@@ -233,7 +269,7 @@ public class PackageUtil {
         String decorateStr = this.generateDecoratePattern(type);
         implContent = implContent.replace(this.decoratePattern,decorateStr);
         String packageContent = packageTempLate.replace(packageNamePattern,implPackageName);
-        String importContent = this.generateImportPattern(type);
+        String importContent = this.generateImportPattern(type,false);
         return packageContent +lineBreak + lineBreak+ this.codeSign + lineBreak + lineBreak + importContent + lineBreak + lineBreak + implContent;
     }
 
@@ -279,12 +315,19 @@ public class PackageUtil {
         String fullInterfaceName = this.packageName + "." + packageType + "." + interfaceName;
         String basicImportPattern = importTemplate.replace(interfacePattern,fullInterfaceName);
         String secondaryImport = "";
+
         switch (type) {
             case SERVICE:
                 secondaryImport = "import org.springframework.stereotype.Service;";
                 break;
             case CONTROLLER:
-                secondaryImport = "import org.springframework.stereotype.Controller;";
+                basicImportPattern = "";
+                if (enableRestful) {
+                    secondaryImport = "import org.springframework.web.bind.annotation.RestController;";
+                }else {
+                    secondaryImport = "import org.springframework.stereotype.Controller;";
+                }
+
                 break;
             case DAO:
                 secondaryImport = "import org.springframework.stereotype.Repository;";
@@ -294,6 +337,24 @@ public class PackageUtil {
         return basicImportPattern +"\n" +secondaryImport;
     }
 
+    private String generateImportPattern(PackageType type,boolean isInterface) {
+        String basicImportPattern = generateImportPattern(type) + "\n";
+        String finalContent = "";
+        String entityPackageName = generatePackageName(PackageType.ENTITY);
+        String entityClassName = upperString(this.moduleName) + entityPackageName;
+        entityPackageName = entityPackageName.toLowerCase();
+        String importEntityPattern = "import "+ this.packageName+ "." + entityPackageName +"." + entityClassName +";";
+        this.setEntityName(entityClassName);
+        if (isInterface) {
+            finalContent = importEntityPattern;
+        }else {
+            finalContent = basicImportPattern + importEntityPattern + "\n";
+        }
+        return finalContent;
+    }
+
+
+
     private String generateDecoratePattern(PackageType type) {
         String decoratePattern;
         switch (type) {
@@ -301,7 +362,12 @@ public class PackageUtil {
                 decoratePattern = "@Service";
                 break;
             case CONTROLLER:
-                decoratePattern = "@Controller";
+                if (enableRestful) {
+                    decoratePattern = "@RestController";
+                }else {
+                    decoratePattern = "@Controller";
+                }
+
                 break;
             case DAO:
                 decoratePattern = "@Repository";
@@ -326,13 +392,34 @@ public class PackageUtil {
         return sign;
     }
 
-    public String generateMethodContent(PackageType packageType, MethodType methodType, boolean isInterface){
+    public String generateMethod(MethodType methodType){
         //上下文
         //方法名称 方法参数 返回类型 使用的
-        //
+        //拿到所有类全名
+        String controllerName = classNameMap.get("controller");
+        String serviceName = classNameMap.get("service");
+        String serviceImplName = classNameMap.get("serviceImpl");
+        String daoName = classNameMap.get("dao");
+        String daoImplName = classNameMap.get("daoImpl");
+        String controllerContent = methodUtil.generateMethodBody(PackageType.CONTROLLER,methodType,false,this.moduleName);
+        String serviceContent = methodUtil.generateMethodBody(PackageType.SERVICE,methodType,true,this.moduleName);
+        String serviceImplContent = methodUtil.generateMethodBody(PackageType.SERVICE,methodType,false,this.moduleName);
+        String daoContent = methodUtil.generateMethodBody(PackageType.DAO,methodType,true,this.moduleName);
+        String daoImplContent = methodUtil.generateMethodBody(PackageType.DAO,methodType,false,this.moduleName);
+        DocumentUtil.writeNewMethod(controllerName,controllerContent,methodUtil.importList,PackageType.CONTROLLER);
+        DocumentUtil.writeNewMethod(serviceName,serviceContent,methodUtil.importList,PackageType.SERVICE);
+        DocumentUtil.writeNewMethod(serviceImplName,serviceImplContent,methodUtil.importList,PackageType.SERVICE);
+        DocumentUtil.writeNewMethod(daoName,daoContent,methodUtil.importList,PackageType.DAO);
+        DocumentUtil.writeNewMethod(daoImplName,daoImplContent,methodUtil.importList,PackageType.DAO);
+
         return null;
     }
-    
+
+
+    private String upperString (String str) {
+        if (str == null || str == "") return str;
+        return str.substring(0,1).toUpperCase() + str.substring(1);
+    }
     
     /**
     * TODO
@@ -340,6 +427,34 @@ public class PackageUtil {
     * 2018/6/18
     * 添加依赖注入,创建方法体
     */
+
+    private void init() {//初始化相关类全名
+        methodUtil = new MethodUtil();
+        methodUtil.setModuleName(this.getModuleName());
+        methodUtil.setBasePackagename(this.getPackageName());
+        String moduleUpper = this.moduleName.substring(0,1).toUpperCase() + this.moduleName.substring(1);
+        String controllerClassName = moduleUpper + this.generatePackageName(PackageType.CONTROLLER);
+        String serviceClassName = "I" + moduleUpper + this.generatePackageName(PackageType.SERVICE);
+        String serviceImplClassName = moduleUpper + this.generatePackageName(PackageType.SERVICE) + "Impl";
+        String daoClassName = "I" +moduleUpper + this.generatePackageName(PackageType.DAO);
+        String daoImplClassName = moduleUpper + this.generatePackageName(PackageType.DAO)+ "Impl";
+        String entityClassName = moduleUpper + this.generatePackageName(PackageType.ENTITY);
+
+        String controllerName = this.packageName + "." + this.controllerPackageName + "." + controllerClassName;
+        String serviceName = this.packageName + "." + this.servicePackageName + "." + serviceClassName;
+        String serviceImplName = this.packageName + "." + this.servicePackageName  + implPackageSuffix + "." + serviceImplClassName;
+        String daoName = this.packageName + "." + this.daoPackageName + "." + daoClassName;
+        String daoImplName = this.packageName + "." + this.daoPackageName  + implPackageSuffix + "." + daoImplClassName;
+        String entityName = this.packageName + "." + this.entityPackageName + "." + entityClassName;
+        classNameMap.put("controller",controllerName);
+        classNameMap.put("service",serviceName);
+        classNameMap.put("serviceImpl",serviceImplName);
+        classNameMap.put("dao",daoName);
+        classNameMap.put("daoImpl",daoImplName);
+        classNameMap.put("entity",entityName);
+    }
+
+
 
 
 }
