@@ -9,7 +9,7 @@
 
 ---
 
-可以用本工具自动建包.执行建包工具后会自动分层，并生成一套从Controller到Dao的类(包含接口类及实现类),其中包名可以自行定制.
+可以用本工具自动建包.执行建包工具后会自动分层，并生成一套从Controller到Dao的类(包含接口类及实现类),并且可以生成一套空的增删改查方法体,其中包名可以自行定制.
 
 使用效果:
 
@@ -29,7 +29,7 @@
 <dependency>
      <groupId>com.github.kyo7701</groupId>
      <artifactId>PackageUtil</artifactId>
-     <version>1.0</version>
+     <version>1.4</version>
 </dependency>
 ```
 
@@ -44,6 +44,12 @@ PackageUtil util = new PackageUtil();
 util.setModuleName("module");
 util.setPackageName("com.cris.test");
 util.generate();
+//------------v1.3新增方法生成-----------
+util.generateMethod(MethodType.METHOD_TYPE_QUERYLIST);
+util.generateMethod(MethodType.METHOD_TYPE_QUERYONE);
+util.generateMethod(MethodType.METHOD_TYPE_INSERT);
+util.generateMethod(MethodType.METHOD_TYPE_UPDATE);
+util.generateMethod(MethodType.METHOD_TYPE_DELETE);
 ```
 其中packagName是你要建包的父包名,要求书写全路径,比如你的包名是com.test.lalala,这里默认你的后端代码全部存放在src/main/java下面,如果你的项目的目录结构不是这样的你可以自行指定classPath;
 

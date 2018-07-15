@@ -114,6 +114,7 @@ public class PackageUtil {
         this.generateService();
         this.generateDao();
         this.generateEntity();
+        createComplete(true);
     }
 
     private void generateService() {
@@ -411,7 +412,7 @@ public class PackageUtil {
         DocumentUtil.writeNewMethod(serviceImplName,serviceImplContent,methodUtil.importList,PackageType.SERVICE);
         DocumentUtil.writeNewMethod(daoName,daoContent,methodUtil.importList,PackageType.DAO);
         DocumentUtil.writeNewMethod(daoImplName,daoImplContent,methodUtil.importList,PackageType.DAO);
-
+        createComplete(false);
         return null;
     }
 
@@ -452,6 +453,15 @@ public class PackageUtil {
         classNameMap.put("dao",daoName);
         classNameMap.put("daoImpl",daoImplName);
         classNameMap.put("entity",entityName);
+    }
+
+    public void createComplete(boolean isCreateFile){
+        String content = "";
+        if (isCreateFile) {
+            content = "----类模板自动生成完毕,enjoy~----";
+        }else {
+            content = "----方法自动生成完毕,enjoy~----";
+        }
     }
 
 

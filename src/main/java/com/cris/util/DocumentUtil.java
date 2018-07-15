@@ -130,7 +130,6 @@ public class DocumentUtil {
             }
             i++;
         }
-        System.out.println(parentFolder);
         return parentFolder;
     }
 
@@ -178,7 +177,6 @@ public class DocumentUtil {
 
             String line = null;
             while ((line = reader.readLine()) != null) {
-                System.out.println(line);
                 if (line.contains("{")) {
                     stack.push("{");
                 }
@@ -199,7 +197,6 @@ public class DocumentUtil {
                     }
                 }
 
-                System.out.println("stack中操作数数量" + stack.size());
                 //在类体内 并且不是在方法体内
                 if (isInClassBody && isEmptyLine &&stack.size() == 1 && !insertComplete) {
                     //将方法内容写入到方法体中
@@ -210,7 +207,6 @@ public class DocumentUtil {
 
                 previousContent.add(line);
                 if (line.contains("interface") || line.contains("class")) {
-                    System.out.println("contains class|interface");
                     isInClassBody = true;
                 }
 
