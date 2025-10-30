@@ -1,63 +1,19 @@
-# Package Util - Java Web自动建包小工具
+# Code generation helpers (proposed)
 
-### 自动建包工具类
+This small addition provides:
+- A CodeGenerator interface and GenerationContext to standardize generation inputs.
+- JavaPoet-based generator for structured Java code generation.
+- Mustache template-based generator for text/template-based generation.
+- A demo (GeneratorsDemo) showing usage.
 
----
-**适用场景:**
+Getting started:
+1. Add dependencies (JavaPoet and Mustache) to your build (see pom.xml snippet above).
+2. Use JavaPoetGenerator when you want type-safe, structured generation (classes, fields, getters/setters).
+3. Use TemplateGenerator when you want flexible text templates (file formats, quick classes, or non-Java outputs).
+4. Extend the API by adding additional generators (e.g., an AnnotationProcessor-driven generator, a Gradle/Maven plugin, or a CLI wrapper).
 
-后端代码使用基于注解式的Spring框架进行开发
-
----
-
-可以用本工具自动建包.执行建包工具后会自动分层，并生成一套从Controller到Dao的类(包含接口类及实现类),并且可以生成一套空的增删改查方法体,其中包名可以自行定制.
-
-使用效果:
-
-![](http://7xwp5w.com1.z0.glb.clouddn.com/packageUtil%E6%95%88%E6%9E%9C%E5%9B%BE.png)
-
-使用方法:
-
-<del>1、引用本jar包，可以下载本工程自行打包,也可以下载我这里打包好的
-
-<del>[jar包下载地址](http://7xwp5w.com1.z0.glb.clouddn.com/PackageUtil.jar)
-
-<del>2、将jar包丢到src目录下(后续考虑丢到maven中心仓)
-
-1、pom中添加对jar包的引用
-
-```xml
-<dependency>
-     <groupId>com.github.kyo7701</groupId>
-     <artifactId>PackageUtil</artifactId>
-     <version>1.4</version>
-</dependency>
-```
-
-
-
-2、新建一个类并新建main方法,执行下列代码
-
-![](http://7xwp5w.com1.z0.glb.clouddn.com/%E9%9C%80%E8%A6%81%E6%89%A7%E8%A1%8C%E7%9A%84%E4%BB%A3%E7%A0%81.png)
-
-```
-PackageUtil util = new PackageUtil();
-util.setModuleName("module");
-util.setPackageName("com.cris.test");
-util.generate();
-//------------v1.3新增方法生成-----------
-util.generateMethod(MethodType.METHOD_TYPE_QUERYLIST);
-util.generateMethod(MethodType.METHOD_TYPE_QUERYONE);
-util.generateMethod(MethodType.METHOD_TYPE_INSERT);
-util.generateMethod(MethodType.METHOD_TYPE_UPDATE);
-util.generateMethod(MethodType.METHOD_TYPE_DELETE);
-```
-其中packagName是你要建包的父包名,要求书写全路径,比如你的包名是com.test.lalala,这里默认你的后端代码全部存放在src/main/java下面,如果你的项目的目录结构不是这样的你可以自行指定classPath;
-
-moduleName及你要生成代码模板的模块名 
-
-
-etc:student --> StudentController 
-    --> IStudentService 
-	--> IStudentDao 
-
-
+Ideas for further simplification and automation:
+- Provide a fluent Builder for GenerationContext to avoid manually assembling maps.
+- Add unit tests and snapshot tests for generated output.
+- Add a command-line entrypoint that reads a YAML/JSON spec and writes generated files to disk.
+- Integrate with your build (Maven plugin or Gradle task) so generated sources are automatically compiled.
